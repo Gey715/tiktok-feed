@@ -37,10 +37,10 @@ jobs:
           sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
           python postprocessing.py
 
-      - name: Commit and push changes
+      - name: Commit and push changes to gh-pages
         run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
           git add .
           git commit --allow-empty -m "Update TikTok feed"
-          git push
+          git push origin `git rev-parse --abbrev-ref HEAD`:gh-pages
