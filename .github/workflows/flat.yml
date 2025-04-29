@@ -18,7 +18,7 @@ jobs:
           python-version: 3.12 #install the python needed
       - name: execute py script
         env:
-          MS_TOKEN: ${{ secrets.MS_TOKEN }}
+          MS_TOKEN: ${{ secrets.MSTOKEN }}
         run: |
           export DISPLAY=:99
           sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
