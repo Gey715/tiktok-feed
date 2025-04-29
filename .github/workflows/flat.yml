@@ -1,4 +1,4 @@
-name: Flat
+name: TikTok RSS Feed
 on:
   push:
     branches:
@@ -6,32 +6,41 @@ on:
   workflow_dispatch:
   schedule:
     - cron: '10 */4 * * *'
+
 jobs:
-  scheduled:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - name: checkout repo content
-        uses: actions/checkout@v3 # checkout the repository content to github runner.
-      - name: setup python
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: 3.12 #install the python needed
-      - name: execute py script
-        env:
-          MS_TOKEN: ${{ secrets.MSTOKEN }}
+          python-version: '3.12'
+
+      - name: Install dependencies
         run: |
-          export DISPLAY=:99
-          sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
-          python3.12 -m venv venv
+          python -m venv venv
           source venv/bin/activate
-          echo "VIRTUAL ENV:" $VIRTUAL_ENV
+          pip install --upgrade pip
           pip install playwright==1.40.0
           pip install -r requirements.txt
           python -m playwright install
-          # playwright install-deps
+
+      - name: Run postprocessing script
+        env:
+          MS_TOKEN: ${{ secrets.MSTOKEN }}
+        run: |
+          source venv/bin/activate
+          export DISPLAY=:99
+          sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
           python postprocessing.py
+
+      - name: Commit and push changes
+        run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
           git add .
-          git commit --allow-empty -m "Latest TikTok RSS"
+          git commit --allow-empty -m "Update TikTok feed"
           git push
